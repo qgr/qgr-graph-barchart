@@ -6,13 +6,6 @@ define( [
     ],
 function ($, _, Backbone, d3) {
 
-  var pluck_from_groups = function(arr) {
-    return _.map(arr, function(m) { return m.get('val'); });
-  };
-
-  var sum = function(arr) {
-    return _.reduce(arr, function(memo, num) { return memo + num; }, 0);
-  };
 
   var BarChart = Backbone.View.extend({
 
