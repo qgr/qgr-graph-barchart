@@ -12,11 +12,11 @@ function ($, _, Backbone, d3) {
   initialize: function(options) {
 
     var t = this;
-    t.graph_config = t.options.graph_config;
+    t.config = t.options.graph_config;
     t.raw_data = t.options.raw_data;
 
     // Transform raw data to format needed by D3.
-    t.data = t.map_raw_data(t.raw_data)
+    t.data = t.map_raw_data(t.raw_data, t.config.label)
 
     var width = t.$el.width(),
       height = t.$el.height();
@@ -43,7 +43,7 @@ function ($, _, Backbone, d3) {
 
     t.raw_data = raw_data;
 
-    t.data = t.map_raw_data(t.raw_data)
+    t.data = t.map_raw_data(t.raw_data, t.config.label)
 
     var bar = t.chart.selectAll("div")
       .data(t.data)
@@ -71,11 +71,11 @@ function ($, _, Backbone, d3) {
 
   },
 
-  map_raw_data: function(raw_data) {
+  map_raw_data: function(raw_data, label_col) {
     return _.map(raw_data, function(row) {
       return {
         val: row.val,
-        label: row.species
+        label: row[label_col]
       };
     });
   }
