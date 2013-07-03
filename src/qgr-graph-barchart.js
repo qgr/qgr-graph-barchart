@@ -19,18 +19,11 @@ function ($, _, Backbone, d3) {
   initialize: function(options) {
 
     var t = this;
-    t.global_q = t.options.global_q;
-    t.collection = new Backbone.Collection([
-      {species: 'Waterfall Swift', color: 'qrimson', val: 1},
-      {species: 'Waterfall Swift', color: 'xhrtreuse', val: 2},
-      {species: 'Cave Swiftlet', color: 'qoral', val: 4},
-      {species: 'Cave Swiftlet', color: 'xhrtreuse', val: 2}
-    ]);
+    t.graph_config = t.options.graph_config;
+    t.raw_data = t.options.raw_data;
 
-    t.base_groups = t.collection.groupBy('species');
-    t.data = _.map(t.base_groups, function(v, k) {
-      return {label: k, val: sum(pluck_from_groups(v)) };
-    })
+    // Transform raw data to format needed by D3.
+    t.data = t.map_raw_data(t.raw_data)
 
     var width = t.$el.width(),
       height = t.$el.height();
@@ -51,21 +44,13 @@ function ($, _, Backbone, d3) {
 
   },
 
+  update: function(raw_data){
 
-  update: function() {
     var t = this;
-    var filtered = t.collection.filter(function(m) {
-      console.log(m);
-      return _.contains(t.global_q.get('w').other, m.get('color'));
-    });
 
-    var grouped = _.groupBy(filtered, function(m) { return m.get('species'); });
+    t.raw_data = raw_data;
 
-    t.data = _.map(grouped, function(v, k) {
-      var val = grouped[k] || 0;
-      return {label: k, val: sum(pluck_from_groups(val)) };
-    })
-    console.log(t.data);
+    t.data = t.map_raw_data(t.raw_data)
 
     var bar = t.chart.selectAll("div")
       .data(t.data)
@@ -92,6 +77,15 @@ function ($, _, Backbone, d3) {
       .remove()
 
   },
+
+  map_raw_data: function(raw_data) {
+    return _.map(raw_data, function(row) {
+      return {
+        val: row.val,
+        label: row.species
+      };
+    });
+  }
 
 });
 
