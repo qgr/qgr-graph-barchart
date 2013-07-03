@@ -17,6 +17,7 @@ function ($, _, Backbone, d3) {
 
     // Transform raw data to format needed by D3.
     t.data = t.map_raw_data(t.raw_data, t.config.label)
+    t.init_labels = _.pluck(t.data, 'label')
 
     var width = t.$el.width(),
       height = t.$el.height();
@@ -44,30 +45,36 @@ function ($, _, Backbone, d3) {
     t.raw_data = raw_data;
 
     t.data = t.map_raw_data(t.raw_data, t.config.label)
+    t.data = t.order_by_init_labels(t.data, t.init_labels);
 
     var bar = t.chart.selectAll("div")
       .data(t.data)
 
     bar
-      .enter()
-      .append("div")
-      .style("width", 0)
+      .style("visibility", function(d) {
+        if (d.val !== 0) {
+          return 'visible';
+        } else if (d3.select(this).style('visibility') == 'hidden') {
+          return 'hidden';
+        }
+      })
+      .text(function(d) {
+        if (d.val !== 0) {
+          return d.label + ': ' + d.val;
+        } else {
+          return '';
+        }
+      })
       .transition()
-      .duration(500)
-      .style("width", function(d) { return t.x(d.val); })
-      .text(function(d) { return d.label + ': ' + d.val; });
-
-    bar
+      .style("width", function(d) {
+        return t.x(d.val); })
       .transition()
-      .style("width", function(d) { return t.x(d.val); })
-      .text(function(d) { return d.label + ': ' + d.val; });
-
-    bar
-      .exit()
-      .transition()
-      .duration(500)
-      .style("width", "0px")
-      .remove()
+      // Hide bars that have zero val
+      .style("visibility", function(d) {
+        if (d.val === 0) {
+          return 'hidden'
+        }
+      })
 
   },
 
@@ -77,6 +84,27 @@ function ($, _, Backbone, d3) {
         val: row.val,
         label: row[label_col]
       };
+    });
+  },
+
+  order_by_init_labels: function(data, init_labels) {
+    return _.map(init_labels, function(label) {
+      var val;
+
+      var rows = _.where(data, {label: label});
+
+      if (_.isEmpty(rows)) {
+        // If there are no matching rows, then val is zero.
+        val = 0;
+      } else {
+        // Otherwise, there should only be one row, so we take its val.
+        val = rows[0].val;
+      }
+
+      return {
+        label: label,
+        val: val
+      }
     });
   }
 
