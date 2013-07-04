@@ -13,22 +13,25 @@ function ($, _, Backbone, d3) {
 
     var t = this;
     t.config = t.options.graph_config;
+    t.container = t.options.container;
     t.raw_data = t.options.raw_data;
 
     // Transform raw data to format needed by D3.
     t.data = t.map_raw_data(t.raw_data, t.config.label)
     t.init_labels = _.pluck(t.data, 'label')
 
-    var width = t.$el.width(),
-      height = t.$el.height();
+    var width = $(t.container).width(),
+      height = $(t.container).height();
 
     t.x = d3.scale.linear()
         .domain([0, d3.max(t.data, function(d) { return d.val; })])
         .range(["0px", 0.8 * width + 'px']),
 
-    t.chart = d3.select(t.el).append("div")
+    t.chart = d3.select(t.container).append("div")
       .attr("class", "qgr-graph-barchart")
       .style("padding-top", height/3 + 'px');
+
+    t.setElement($('.qgr-graph-barchart')[0]);
 
     t.chart.selectAll("div")
       .data(t.data)
