@@ -93,6 +93,7 @@ function ($, _, Backbone, d3) {
   },
 
   order_by_init_labels: function(data, init_labels) {
+    var t = this;
     return _.map(init_labels, function(label) {
       var val;
 
@@ -103,13 +104,14 @@ function ($, _, Backbone, d3) {
         val = 0;
       } else {
         // Otherwise, there should only be one row, so we take its val.
-        val = rows[0].val;
+        val = rows[0][t.col]
       }
 
-      return {
+      row = {
         label: label,
-        val: val
       }
+      row[t.col] = val;
+      return row;
     });
   }
 
